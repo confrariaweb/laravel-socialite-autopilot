@@ -1,0 +1,37 @@
+{
+    "name": "confrariaweb/laravel-socialite-autopilot",
+    "version": "dev-master",
+    "description": "Laravel socialite autopilot package",
+    "keywords": [
+        "socialite autopilot",
+        "framework",
+        "laravel"
+    ],
+    "license": "MIT",
+    "type": "package",
+    "authors": [
+        {
+            "name": "Rafael Zingano",
+            "email": "confrariaweb@gmail.com"
+        }
+    ],
+    "require": {
+        "google/apiclient": "^2.10",
+        "laravel/socialite": "^5.2",
+        "socialiteproviders/youtube": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "ConfrariaWeb\\SocialiteAutoPilot\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ConfrariaWeb\\SocialiteAutoPilot\\Providers\\SocialiteAutoPilotServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

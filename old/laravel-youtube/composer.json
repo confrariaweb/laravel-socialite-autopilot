@@ -1,0 +1,45 @@
+{
+    "name": "confrariaweb/laravel-youtube",
+    "version": "dev-master",
+    "description": "Laravel youtube package",
+    "keywords": [
+        "youtube",
+        "framework",
+        "laravel"
+    ],
+    "license": "MIT",
+    "type": "package",
+    "authors": [
+        {
+            "name": "Rafael Zingano",
+            "email": "confrariaweb@gmail.com"
+        }
+    ],
+    "require": {
+        "google/apiclient": "^2.10",
+        "laravel/socialite": "^5.2",
+        "socialiteproviders/youtube": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "ConfrariaWeb\\Youtube\\": "src"
+        }
+    },
+    "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ConfrariaWeb\\Youtube\\Providers\\YoutubeServiceProvider"
+            ]
+        },
+        "google/apiclient-services": [
+            "YouTube",
+            "YouTubeAnalytics",
+            "YouTubeReporting"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
