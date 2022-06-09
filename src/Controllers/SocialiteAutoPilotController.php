@@ -4,27 +4,44 @@ namespace ConfrariaWeb\SocialiteAutoPilot\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use ConfrariaWeb\YoutubeAutoPilot\Services\YoutubeAutoPilotService;
+use ConfrariaWeb\SocialiteAutoPilot\Models\SocialiteAccount;
+use ConfrariaWeb\SocialiteAutoPilot\Models\SocialiteMedia;
+use ConfrariaWeb\SocialiteAutoPilot\Services\SocialiteAutoPilotService;
 
 class SocialiteAutoPilotController extends Controller
 {
 
-    protected $youtubeAutoPilotService;
+    protected $socialiteAutoPilotService;
 
-    function __construct(YoutubeAutoPilotService $youtubeAutoPilotService)
+    function __construct(SocialiteAutoPilotService $socialiteAutoPilotService)
     {
-        $this->youtubeAutoPilotService = $youtubeAutoPilotService;
+        $this->socialiteAutoPilotService = $socialiteAutoPilotService;
     }
 
-    public function redirect()
+    public function redirect($provider)
     {
-        return $this->youtubeAutoPilotService->redirect();
+        return $this->socialiteAutoPilotService->redirect($provider);
     }
 
-    public function callback(Request $request)
+    public function callback($provider, Request $request)
     {
-        $channel = $this->youtubeAutoPilotService->callback($request);
-        return redirect()->route('dashboard.youtube.channels.edit', $channel->id)->with('status', 'Channel updated!');
+        $social = $this->socialiteAutoPilotService->callback($request, $provider);
+        return redirect()->route('dashboard.accounts.index')->with('status', 'Provedor atualizado!');
+    }
+
+    public function accounts(){
+        $data['accounts'] = SocialiteAccount::all();
+        return view('socialiteAutoPilot::accounts', $data);
+    }
+
+    public function medias(){
+        $data['medias'] = SocialiteMedia::all();
+        return view('socialiteAutoPilot::medias', $data);
+    }
+
+    public function createMedias(){
+        $data['accounts'] = SocialiteAccount::all();
+        return view('socialiteAutoPilot::create_medias', $data);
     }
 
 }

@@ -3,45 +3,59 @@
 namespace ConfrariaWeb\SocialiteAutoPilot\Services;
 
 use Auth;
-use ConfrariaWeb\SocialiteAutoPilot\Services\SocialiteService;
 use ConfrariaWeb\SocialiteAutoPilot\Jobs\DownloadVideo;
 use ConfrariaWeb\SocialiteAutoPilot\Jobs\PublishVideoJob;
-use ConfrariaWeb\SocialiteAutoPilot\Models\SocialiteChannel;
-use ConfrariaWeb\SocialiteAutoPilot\Models\SocialiteSearch;
-use ConfrariaWeb\SocialiteAutoPilot\Models\SocialiteVideo;
+use ConfrariaWeb\SocialiteAutoPilot\Models\SocialiteAccount;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Config;
+use Laravel\Socialite\Facades\Socialite;
 
 class SocialiteAutoPilotService
 {
 
-    protected $youtubeService;
-
-    function __construct(SocialiteService $youtubeService)
+    function __construct()
     {
-        $this->youtubeService = $youtubeService;
+        
     }
 
-    public function redirect()
+    public function redirect($provider)
     {
-        return resolve('SocialiteService')->redirect();
+        $scopes = Config::get('services.{$provider}.scopes');
+        $social = Socialite::driver($provider);
+        if($scopes){
+            $social->scopes($scopes);
+        }
+        return $social->redirect();
     }
 
-    public function callback(Request $request)
+    public function callback(Request $request, $provider)
     {
-        $accessToken = resolve('SocialiteService')->callback();
-        $data['user_id'] = Auth::id();
-        $data['access_token'] = $accessToken;
-        $data['channel_id'] = $accessToken->id;
-        $data['channel_title'] = $accessToken->nickname;
-        $data['avatar'] = $accessToken->avatar;
-        return $this->updateOrCreateChannel($data);
+        $user = Socialite::driver($provider)->user();
+        // OAuth 2.0 providers...
+        //$token = $user->token;
+        //$refreshToken = $user->refreshToken;
+        //$expiresIn = $user->expiresIn;
+
+        // OAuth 1.0 providers...
+        //$token = $user->token;
+        //$tokenSecret = $user->tokenSecret;
+
+        // All providers...
+        //$user->getId();
+        //$user->getNickname();
+        //$user->getName();
+        //$user->getEmail();
+        //$user->getAvatar();
+
+        return SocialiteAccount::updateOrCreate(
+            ['social_id' => $user->getId()],
+            ['social_id' => $user->getId(), 'user_id' => Auth::id(), 'name' => $user->getNickname(), 'data' => $user, 'provider' => $provider]
+        );
     }
 
-    /**
-     * Publicar videos
-     */
+    /*
     public function publishVideos($data = []){
         $videos = SocialiteVideo::whereNull('published_at')->whereNotNull('downloaded_at')->get();
         foreach($videos as $video){
@@ -52,9 +66,6 @@ class SocialiteAutoPilotService
         }
     }
 
-    /**
-     * Publicar o video
-     */
     public function publishVideo(SocialiteVideo $video){
         if (Storage::missing($video->path)) {
             return false;
@@ -65,11 +76,6 @@ class SocialiteAutoPilotService
         return true;
     }
 
-    /**
-     * Saves the access token to the database.
-     *
-     * @param  string  $accessToken
-     */
     public function updateOrCreateChannel($data)
     {
         return SocialiteChannel::updateOrCreate(['channel_id' => $data['channel_id']], $data);
@@ -83,9 +89,6 @@ class SocialiteAutoPilotService
         return SocialiteSearch::all();
     }
 
-    /**
-     * Busca videos do canal cadastrrado em search channel
-     */
     public function searchChannelVideos(SocialiteSearch $search, $amount = 5)
     {
         try{
@@ -101,7 +104,6 @@ class SocialiteAutoPilotService
                     ['youtube_channel_id' => $channel->id, 'video_id' => $item->id],
                     $data
                 );
-                /* Abre um job para baixar o video */
                 DownloadVideo::dispatch($video);
             });
             return true;
@@ -160,7 +162,7 @@ class SocialiteAutoPilotService
             return false;
         }
         return $this->updateOrCreate($data);
-    }*/
+    }
 
     public function auth($data)
     {
@@ -195,31 +197,19 @@ class SocialiteAutoPilotService
     }
 
 
-
-
-
-
-
-    /**
-     * Get the latest access token from the database.
-     *
-     * @return string
-     */
     public function getAccessTokenFromDB($channel_id)
     {
         $youtubeChannel = SocialiteChannel::find($channel_id);
         return $youtubeChannel->access_token ?? null;
     }
 
-    /**
-     * Salva o token de acesso no banco de dados.
-     *
-     * @param  string  $accessToken
-     */
+
     public function updateAccessTokenToDB($channel_id, $accessToken)
     {
         $youtubeChannel = SocialiteChannel::find($channel_id);
         $youtubeChannel->access_token = $accessToken;
         return $youtubeChannel->save();
     }
+
+    */
 }

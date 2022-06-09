@@ -16,8 +16,11 @@
         }
     ],
     "require": {
+        "confrariaweb/laravel-tag": "dev-master",
         "google/apiclient": "^2.10",
         "laravel/socialite": "^5.2",
+        "laravelcollective/html": "^6.2",
+        "php-ffmpeg/php-ffmpeg": "^0.18.0",
         "socialiteproviders/youtube": "^4.1"
     },
     "autoload": {
